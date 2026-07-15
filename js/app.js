@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initReviewsCarousel();
   initFaqAccordion();
   initContactForm();
+  initVoiceGuide();
 });
 
 /* ==========================================================================
@@ -831,3 +832,214 @@ function showToast(message, type = 'success') {
     }, 400);
   }, 4000);
 }
+
+/* ==========================================================================
+   11. AI Voice & Interactive Virtual Tour Guide Module
+   ========================================================================== */
+function initVoiceGuide() {
+  const trigger = document.getElementById('ai-guide-trigger');
+  const card = document.getElementById('ai-guide-card');
+  const cardClose = document.getElementById('ai-card-close');
+  const btnStart = document.getElementById('btn-start-tour');
+  const btnPause = document.getElementById('btn-pause-tour');
+  const btnStop = document.getElementById('btn-stop-tour');
+  const guideText = document.getElementById('ai-guide-text');
+  const statusDot = card.querySelector('.status-dot');
+
+  let synth = window.speechSynthesis;
+  let tourUtterance = null;
+  let isSpeaking = false;
+  let currentStep = 0;
+  let isPaused = false;
+
+  const tourSteps = [
+    {
+      target: '#home',
+      text: "Welcome to GreenHaven Eco-Retreat. I am your virtual forest guide. Let me show you around our resort. We will start here at our beautiful nature gateway.",
+      title: "Discover the Wilderness"
+    },
+    {
+      target: '#about',
+      text: "Next, we visit the heart of nature. Founded in 2022, GreenHaven offers guided forest trekking, boating events, and premium cottage stays.",
+      title: "Heart of Nature"
+    },
+    {
+      target: '#packages',
+      text: "Here are our curated tour packages. You can filter between adventure, camping, or premium options depending on your group size.",
+      title: "Resort Tour Packages"
+    },
+    {
+      target: '#booking',
+      text: "Our interactive booking simulator allows you to choose dates, guest count, and optional add-ons to calculate trip costs and generate a scannable check-in gate pass.",
+      title: "Real-time Booking Simulator"
+    },
+    {
+      target: '#reviews',
+      text: "Check out reviews from our verified family and solo travelers. All testimonials are persisted directly in our SQLite database.",
+      title: "Verified Visitor Reviews"
+    },
+    {
+      target: '#contact',
+      text: "Finally, if you have any questions or want customized packages, send us a query here. Thank you for visiting GreenHaven Eco-Retreat!",
+      title: "Retreat Helpdesk"
+    }
+  ];
+
+  // Open/Close Card
+  trigger.addEventListener('click', () => {
+    card.classList.toggle('active');
+  });
+
+  cardClose.addEventListener('click', () => {
+    card.classList.remove('active');
+  });
+
+  // Start / Resume Tour
+  btnStart.addEventListener('click', () => {
+    if (isPaused && synth) {
+      synth.resume();
+      isPaused = false;
+      isSpeaking = true;
+      updateUIState('speaking');
+      return;
+    }
+    
+    currentStep = 0;
+    runTourStep();
+  });
+
+  // Pause Tour
+  btnPause.addEventListener('click', () => {
+    if (synth && synth.speaking) {
+      synth.pause();
+      isPaused = true;
+      isSpeaking = false;
+      updateUIState('paused');
+    }
+  });
+
+  // Stop Tour
+  btnStop.addEventListener('click', () => {
+    stopTour();
+  });
+
+  function stopTour() {
+    if (synth) {
+      synth.cancel();
+    }
+    clearTourHighlights();
+    isSpeaking = false;
+    isPaused = false;
+    currentStep = 0;
+    guideText.textContent = "Tour stopped. Ready to start again!";
+    updateUIState('idle');
+  }
+
+  function runTourStep() {
+    if (currentStep >= tourSteps.length) {
+      stopTour();
+      guideText.textContent = "Thank you for completing the tour! Have a great stay at GreenHaven Eco-Retreat.";
+      return;
+    }
+
+    clearTourHighlights();
+    const step = tourSteps[currentStep];
+    const element = document.querySelector(step.target);
+
+    if (element) {
+      // Highlight the section
+      element.classList.add('tour-highlight');
+      // Scroll to section smoothly
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    guideText.textContent = `[${step.title}] ${step.text}`;
+
+    if (!synth) {
+      // Fallback if SpeechSynthesis is not supported
+      setTimeout(() => {
+        currentStep++;
+        runTourStep();
+      }, 5000);
+      return;
+    }
+
+    // Speech synthesis implementation
+    synth.cancel(); // Stop any pending speech
+    tourUtterance = new SpeechSynthesisUtterance(step.text);
+    
+    // Choose a nice default voice
+    const voices = synth.getVoices();
+    const englishVoice = voices.find(voice => voice.lang.startsWith('en'));
+    if (englishVoice) {
+      tourUtterance.voice = englishVoice;
+    }
+
+    tourUtterance.rate = 0.95; // Slightly slower for clear narration
+    tourUtterance.pitch = 1.0;
+
+    tourUtterance.onstart = () => {
+      isSpeaking = true;
+      updateUIState('speaking');
+    };
+
+    tourUtterance.onend = () => {
+      if (!isPaused) {
+        currentStep++;
+        runTourStep();
+      }
+    };
+
+    tourUtterance.onerror = (e) => {
+      console.error("SpeechSynthesis error:", e);
+      if (!isPaused) {
+        currentStep++;
+        runTourStep();
+      }
+    };
+
+    synth.speak(tourUtterance);
+  }
+
+  function clearTourHighlights() {
+    document.querySelectorAll('.tour-highlight').forEach(el => {
+      el.classList.remove('tour-highlight');
+    });
+  }
+
+  function updateUIState(state) {
+    if (state === 'speaking') {
+      trigger.classList.add('speaking');
+      statusDot.className = 'status-dot speaking';
+      btnStart.style.display = 'none';
+      btnPause.style.display = 'inline-block';
+      btnStop.style.display = 'inline-block';
+    } else if (state === 'paused') {
+      trigger.classList.remove('speaking');
+      statusDot.className = 'status-dot online';
+      btnStart.textContent = 'Resume';
+      btnStart.style.display = 'inline-block';
+      btnPause.style.display = 'none';
+      btnStop.style.display = 'inline-block';
+    } else { // idle
+      trigger.classList.remove('speaking');
+      statusDot.className = 'status-dot online';
+      btnStart.textContent = 'Start Tour';
+      btnStart.style.display = 'inline-block';
+      btnPause.style.display = 'none';
+      btnStop.style.display = 'none';
+    }
+  }
+
+  // Handle page unload or tab visibility loss to prevent speech lock
+  window.addEventListener('beforeunload', () => {
+    if (synth) synth.cancel();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && synth) {
+      synth.cancel();
+      stopTour();
+    }
+  });
+}
+

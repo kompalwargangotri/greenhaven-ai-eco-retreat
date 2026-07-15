@@ -1996,3 +1996,219 @@ footer {
     padding: 20px;
   }
 }
+
+/* ==========================================================================
+   11. AI Voice Tour Guide Widget
+   ========================================================================== */
+.ai-guide-widget {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+  font-family: var(--font-body);
+}
+
+.ai-guide-trigger {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  color: var(--text-light);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.ai-guide-trigger:hover {
+  transform: scale(1.08);
+  background: var(--primary-light);
+}
+
+.ai-guide-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--primary-light);
+  opacity: 0;
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.ai-guide-icon {
+  width: 26px;
+  height: 26px;
+  transition: opacity var(--transition-fast);
+}
+
+.ai-guide-trigger.speaking .ai-guide-icon {
+  opacity: 0;
+}
+
+/* Sound Wave Bars Visualizer */
+.ai-voice-waves {
+  position: absolute;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  width: 30px;
+  height: 20px;
+}
+
+.ai-guide-trigger.speaking .ai-voice-waves {
+  display: flex;
+}
+
+.ai-voice-waves span {
+  width: 3px;
+  height: 100%;
+  background-color: var(--accent);
+  border-radius: var(--radius-full);
+  animation: bounce-wave 0.8s ease-in-out infinite alternate;
+}
+
+.ai-voice-waves span:nth-child(1) { animation-delay: 0.1s; height: 30%; }
+.ai-voice-waves span:nth-child(2) { animation-delay: 0.3s; height: 60%; }
+.ai-voice-waves span:nth-child(3) { animation-delay: 0.5s; height: 90%; }
+.ai-voice-waves span:nth-child(4) { animation-delay: 0.2s; height: 40%; }
+
+@keyframes bounce-wave {
+  0% { transform: scaleY(0.3); }
+  100% { transform: scaleY(1); }
+}
+
+/* Card Style */
+.ai-guide-card {
+  position: absolute;
+  bottom: 75px;
+  right: 0;
+  width: 320px;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(15px);
+  opacity: 0;
+  transition: transform var(--transition-normal), opacity var(--transition-normal);
+}
+
+.ai-guide-card.active {
+  display: flex;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.ai-guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.ai-guide-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-guide-status h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+.status-dot.online {
+  background-color: var(--secondary-light);
+  box-shadow: 0 0 8px var(--secondary-light);
+}
+
+.status-dot.speaking {
+  background-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse-dot 1.2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+.ai-card-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  font-weight: 300;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.ai-card-close:hover {
+  color: var(--text-main);
+}
+
+.ai-guide-body {
+  padding: 18px;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.ai-guide-body p {
+  font-weight: 400;
+}
+
+.ai-guide-footer {
+  display: flex;
+  gap: 10px;
+  padding: 12px 18px;
+  background: rgba(0, 0, 0, 0.02);
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Highlighted Section border overlay animation for guide flow */
+.tour-highlight {
+  outline: 3px solid var(--accent) !important;
+  outline-offset: 4px;
+  transition: outline var(--transition-normal) !important;
+}
+
