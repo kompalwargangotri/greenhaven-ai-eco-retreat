@@ -2591,5 +2591,70 @@ footer {
   border: 1px solid rgba(142, 170, 150, 0.25);
 }
 
+/* ==========================================================================
+   13. Premium Animations (Glowing Accent Orbs & Scroll Reveal)
+   ========================================================================== */
+.glowing-orb {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.08;
+  filter: blur(100px);
+  transition: opacity var(--transition-normal);
+  will-change: transform;
+}
+
+[data-theme="dark"] .glowing-orb {
+  opacity: 0.15;
+}
+
+.orb-1 {
+  background: var(--primary-light);
+  top: 15%;
+  left: -10%;
+  animation: float-slow 22s infinite alternate ease-in-out;
+}
+
+.orb-2 {
+  background: var(--accent);
+  top: 60%;
+  right: -10%;
+  animation: float-slow 28s infinite alternate-reverse ease-in-out;
+}
+
+@keyframes float-slow {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, -30px) scale(1.08); }
+  100% { transform: translate(-25px, 45px) scale(0.92); }
+}
+
+/* Scroll Reveal System */
+.reveal {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 {
+  transition-delay: 0.12s;
+}
+
+.reveal-delay-2 {
+  transition-delay: 0.24s;
+}
+
+.reveal-delay-3 {
+  transition-delay: 0.36s;
+}
+
 
 
