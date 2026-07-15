@@ -18,6 +18,15 @@ An interactive, responsive, single-page full-stack web application designed for 
 ### 4. Real-time review Natural Language Processing sentiment scoring
 ![Real-time NLP Sentiment Analyzer](screenshots/nlp_sentiment.png)
 
+### 5. Premium Dark Theme Mode Layout (Emerald Theme)
+![Premium Dark Theme Mode](screenshots/dark_theme.png)
+
+### 6. Interactive Ticket Receipt Modal (with scannable entry barcode)
+![Interactive Ticket Receipt Pass](screenshots/booking_receipt.png)
+
+### 7. Filterable packages dashboard (Adventure package selection active)
+![Filterable packages dashboard](screenshots/package_filter.png)
+
 ---
 
 ## 🚀 Live Demo & Hosting
