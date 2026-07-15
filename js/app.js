@@ -982,12 +982,19 @@ function initVoiceGuide() {
   const btnStop = document.getElementById('btn-stop-tour');
   const guideText = document.getElementById('ai-guide-text');
   const statusDot = card.querySelector('.status-dot');
+  
+  const chatMessages = document.getElementById('ai-chat-messages');
+  const chatForm = document.getElementById('ai-chat-input-form');
+  const chatInput = document.getElementById('ai-chat-input');
+  const quickChips = document.getElementById('ai-quick-chips');
+  const tourControls = document.getElementById('ai-tour-controls');
 
   let synth = window.speechSynthesis;
   let tourUtterance = null;
   let isSpeaking = false;
   let currentStep = 0;
   let isPaused = false;
+  let isTourMode = false;
 
   const tourSteps = [
     {
@@ -1022,16 +1029,17 @@ function initVoiceGuide() {
     }
   ];
 
-  // Open/Close Card
+  // Toggle Card
   trigger.addEventListener('click', () => {
     card.classList.toggle('active');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 
   cardClose.addEventListener('click', () => {
     card.classList.remove('active');
   });
 
-  // Start / Resume Tour
+  // Tour controls triggers
   btnStart.addEventListener('click', () => {
     if (isPaused && synth) {
       synth.resume();
@@ -1040,12 +1048,10 @@ function initVoiceGuide() {
       updateUIState('speaking');
       return;
     }
-    
     currentStep = 0;
     runTourStep();
   });
 
-  // Pause Tour
   btnPause.addEventListener('click', () => {
     if (synth && synth.speaking) {
       synth.pause();
@@ -1055,27 +1061,36 @@ function initVoiceGuide() {
     }
   });
 
-  // Stop Tour
   btnStop.addEventListener('click', () => {
     stopTour();
   });
 
   function stopTour() {
-    if (synth) {
-      synth.cancel();
-    }
+    if (synth) synth.cancel();
     clearTourHighlights();
     isSpeaking = false;
     isPaused = false;
+    isTourMode = false;
     currentStep = 0;
-    guideText.textContent = "Tour stopped. Ready to start again!";
+    
+    tourControls.style.display = 'none';
+    quickChips.style.display = 'flex';
     updateUIState('idle');
+    
+    addBotMessage("Interactive audio tour stopped. Let me know if you need help with anything else!");
   }
 
   function runTourStep() {
     if (currentStep >= tourSteps.length) {
-      stopTour();
-      guideText.textContent = "Thank you for completing the tour! Have a great stay at GreenHaven Eco-Retreat.";
+      clearTourHighlights();
+      isSpeaking = false;
+      isPaused = false;
+      isTourMode = false;
+      currentStep = 0;
+      tourControls.style.display = 'none';
+      quickChips.style.display = 'flex';
+      updateUIState('idle');
+      addBotMessage("Audio tour completed! Thank you for walking through our resort guide. Feel free to ask more questions!");
       return;
     }
 
@@ -1084,66 +1099,63 @@ function initVoiceGuide() {
     const element = document.querySelector(step.target);
 
     if (element) {
-      // Highlight the section
       element.classList.add('tour-highlight');
-      // Scroll to section smoothly
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    guideText.textContent = `[${step.title}] ${step.text}`;
+    guideText.textContent = `[${step.title}] Narration playing...`;
+    
+    // Auto-add bot chat log during tour
+    addBotMessage(`Touring section: ${step.title}`, false);
 
-    if (!synth) {
-      // Fallback if SpeechSynthesis is not supported
-      setTimeout(() => {
+    speakText(step.text, () => {
+      if (!isPaused && isTourMode) {
         currentStep++;
         runTourStep();
-      }, 5000);
+      }
+    });
+  }
+
+  // Speak aloud helper
+  function speakText(text, callback = null) {
+    if (!synth) {
+      if (callback) setTimeout(callback, 4000);
       return;
     }
-
-    // Speech synthesis implementation
-    synth.cancel(); // Stop any pending speech
-    tourUtterance = new SpeechSynthesisUtterance(step.text);
     
-    // Choose a nice default voice
+    synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
     const voices = synth.getVoices();
-    const englishVoice = voices.find(voice => voice.lang.startsWith('en'));
-    if (englishVoice) {
-      tourUtterance.voice = englishVoice;
-    }
+    const englishVoice = voices.find(v => v.lang.startsWith('en'));
+    if (englishVoice) utterance.voice = englishVoice;
+    
+    utterance.rate = 0.95;
+    utterance.pitch = 1.05;
 
-    tourUtterance.rate = 0.95; // Slightly slower for clear narration
-    tourUtterance.pitch = 1.0;
-
-    tourUtterance.onstart = () => {
+    utterance.onstart = () => {
       isSpeaking = true;
       updateUIState('speaking');
     };
 
-    tourUtterance.onend = () => {
+    utterance.onend = () => {
+      isSpeaking = false;
       if (!isPaused) {
-        currentStep++;
-        runTourStep();
+        updateUIState('idle');
+        if (callback) callback();
       }
     };
 
-    tourUtterance.onerror = (e) => {
-      console.error("SpeechSynthesis error:", e);
-      if (!isPaused) {
-        currentStep++;
-        runTourStep();
-      }
+    utterance.onerror = (e) => {
+      console.error(e);
+      isSpeaking = false;
+      updateUIState('idle');
+      if (callback) callback();
     };
 
-    synth.speak(tourUtterance);
+    synth.speak(utterance);
   }
 
-  function clearTourHighlights() {
-    document.querySelectorAll('.tour-highlight').forEach(el => {
-      el.classList.remove('tour-highlight');
-    });
-  }
-
+  // Update visual widget states
   function updateUIState(state) {
     if (state === 'speaking') {
       trigger.classList.add('speaking');
@@ -1168,14 +1180,145 @@ function initVoiceGuide() {
     }
   }
 
-  // Handle page unload or tab visibility loss to prevent speech lock
+  function clearTourHighlights() {
+    document.querySelectorAll('.tour-highlight').forEach(el => {
+      el.classList.remove('tour-highlight');
+    });
+  }
+
+  // Chat message logging helpers
+  function addUserMessage(text) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble user';
+    bubble.textContent = text;
+    chatMessages.appendChild(bubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function addBotMessage(text, speak = true) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble bot';
+    bubble.textContent = text;
+    chatMessages.appendChild(bubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    if (speak && !isTourMode) {
+      speakText(text);
+    }
+  }
+
+  function showTypingIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'typing-dots';
+    indicator.id = 'typing-indicator';
+    indicator.innerHTML = '<span></span><span></span><span></span>';
+    chatMessages.appendChild(indicator);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) indicator.remove();
+  }
+
+  // Bot response NLP rules engine
+  function processUserQuery(query) {
+    const text = query.toLowerCase().trim();
+    showTypingIndicator();
+
+    setTimeout(() => {
+      removeTypingIndicator();
+      
+      if (text === 'tour' || text.includes('start tour') || text.includes('voice tour')) {
+        addBotMessage("Starting the GreenHaven virtual audio tour narrator now!", false);
+        setTimeout(() => {
+          isTourMode = true;
+          quickChips.style.display = 'none';
+          tourControls.style.display = 'block';
+          currentStep = 0;
+          isPaused = false;
+          runTourStep();
+        }, 1200);
+        return;
+      }
+
+      let reply = "";
+      if (text.includes('hello') || text.includes('hi') || text.includes('hey')) {
+        reply = "Hello! I'm Aranya. How can I help you today? You can ask me about packages, booking simulator, food, or activities!";
+      } else if (text.includes('package') || text.includes('rate') || text.includes('cost') || text.includes('price')) {
+        reply = "We offer three packages: Nature Starter (₹650), Adventure Pro (₹1,200), and Luxury Agro Retreat (₹2,500). Scroll to our packages section to filter them!";
+      } else if (text.includes('book') || text.includes('reserve') || text.includes('simulator') || text.includes('ticket')) {
+        reply = "You can book directly using the Simulator section. Choose your packages, guests, and addons, then submit to generate a gate check-in ticket pass!";
+      } else if (text.includes('food') || text.includes('dining') || text.includes('thali') || text.includes('buffet') || text.includes('organic')) {
+        reply = "Our retreat serves 100% organic farm-fresh regional recipes, cooked using traditional earthen ovens. It's home-cooked and healthy!";
+      } else if (text.includes('trek') || text.includes('trekking') || text.includes('boating') || text.includes('guide')) {
+        reply = "We host guided forest trekking, boating excursions, and bonfire camping events. Private guides can be checked as add-ons in the booking simulator.";
+      } else if (text.includes('contact') || text.includes('help') || text.includes('support') || text.includes('phone') || text.includes('email')) {
+        reply = "You can email us at info@Nature_agro.com, call +91 934567xx67, or write a query in the contact helpdesk at the bottom of this page.";
+      } else if (text.includes('sqlite') || text.includes('database') || text.includes('sql') || text.includes('backend')) {
+        reply = "Our system runs a fullstack Python backend integrated with an SQLite database (greenhaven.db). It stores bookings, customer reviews, and helpdesk messages securely!";
+      } else if (text.includes('logo') || text.includes('puerto') || text.includes('branding')) {
+        reply = "We have corrected the branding logo to the official 'GreenHaven Eco-Retreat' design. Est. 2023 - Sustainable Luxury.";
+      } else {
+        reply = "I'm happy to help! You can ask about our packages, dynamic cost calculator, farm-fresh organic dining, or support contacts.";
+      }
+
+      addBotMessage(reply);
+    }, 1000);
+  }
+
+  // Handle Input Submission
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const query = chatInput.value.trim();
+    if (!query) return;
+
+    addUserMessage(query);
+    chatInput.value = '';
+    
+    // If tour is active, stop it before answering questions
+    if (isTourMode) {
+      if (synth) synth.cancel();
+      clearTourHighlights();
+      isTourMode = false;
+      tourControls.style.display = 'none';
+      quickChips.style.display = 'flex';
+      updateUIState('idle');
+    }
+
+    processUserQuery(query);
+  });
+
+  // Handle Quick Chips click
+  quickChips.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip-btn');
+    if (!chip) return;
+
+    const query = chip.getAttribute('data-query');
+    
+    if (query === 'tour') {
+      addUserMessage("🎙️ Start Voice Tour");
+      processUserQuery("tour");
+    } else if (query === 'packages') {
+      addUserMessage("🏕️ Check packages details");
+      processUserQuery("packages");
+    } else if (query === 'booking') {
+      addUserMessage("🎫 How do I book a ticket?");
+      processUserQuery("booking");
+    } else if (query === 'food') {
+      addUserMessage("🍛 Tell me about the dining");
+      processUserQuery("food");
+    }
+  });
+
+  // Window unload handlers
   window.addEventListener('beforeunload', () => {
     if (synth) synth.cancel();
   });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && synth) {
       synth.cancel();
-      stopTour();
+      if (isTourMode) stopTour();
     }
   });
 }
