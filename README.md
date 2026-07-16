@@ -27,6 +27,21 @@ An interactive, responsive, single-page full-stack web application designed for 
 ### 7. Filterable packages dashboard (Adventure package selection active)
 ![Filterable packages dashboard](screenshots/package_filter.png)
 
+### 8. Live Weather Widget (Open-Meteo Integration)
+![Weather Status Widget](screenshots/weather_widget.png)
+
+### 9. User Authentication & Booking Form Auto-Prefill
+![Guest Session Auto-Prefill](screenshots/form_prefilled.png)
+
+### 10. Simulated Credit Card Payment Gateway (Luhn validation active)
+![Payment Checkout Interface](screenshots/payment_modal.png)
+
+### 11. Interactive Secure Pass Ticket Pass (Gate Access Ticket)
+![Gate Access Ticket](screenshots/success_receipt.png)
+
+### 12. Full-Stack Administration Dashboard (`admin.html`)
+![Administrative Analytics Dashboard](screenshots/admin_dashboard.png)
+
 ---
 
 ## 🚀 Live Demo & Hosting
@@ -127,7 +142,13 @@ nature-tourism-center-full-stack/
 │   ├── dynamic_pricing.png
 │   ├── booking_receipt.png
 │   ├── dark_theme.png
-│   └── nlp_sentiment.png
+│   ├── nlp_sentiment.png
+│   ├── weather_widget.png
+│   ├── form_prefilled.png
+│   ├── payment_modal.png
+│   ├── success_receipt.png
+│   ├── admin_dashboard.png
+│   └── admin_updated_records.png
 ├── greenhaven.db
 ├── index.html
 ├── server.py
