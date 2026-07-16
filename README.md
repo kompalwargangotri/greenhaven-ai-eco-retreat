@@ -70,8 +70,30 @@ The project supports a dual-mode execution model:
 
 ---
 
-## 🛠️ Full-Stack Technical Stack
+## 🛠️ Full-Stack Technical Stack & Features
 
+* **User Authentication System**:
+  * Persistent session-based user authentication using `sessionStorage`.
+  * Autocompletes name and email inputs in the booking forms dynamically when logged in.
+  * Safe administrative role control gate (`admin` vs `user`).
+  * Default test credentials:
+    * **Admin Account**: Username `admin` / Password `admin123`
+    * **Guest Account**: Username `guest` / Password `guest123`
+* **Simulated Secure Payment Gateway**:
+  * Luhn algorithm validation check on credit card inputs to prevent erroneous submissions.
+  * Real-time card type indicator (Visa, Mastercard, RuPay detection by prefix).
+  * 3D-Secure secure token authorization delay animation with loading spinners.
+* **Live Weather Integration**:
+  * Live coordinate weather parsing fetched client-side from the free Open-Meteo REST API.
+  * Displays current temperature and weather conditions at the Coorg Reserve location.
+  * Displays flashing emergency Monsoon Warning indicators if storms or heavy rain are reported.
+* **Interactive Google Maps Block**:
+  * High-quality interactive Google Maps iframe block embedded dynamically at the bottom of the contact panel representing Coorg Reserve, Karnataka, India.
+* **Administrative Control Panel (`admin.html`)**:
+  * An admin panel route showing real-time statistics logs.
+  * **Financial KPIs**: Total booking registers, aggregated revenue (INR), helpdesk query count, and positive sentiment ratios.
+  * **Custom SVG/Canvas Charts**: Dynamic graphical indicators displaying package choices distribution and sentiment review metrics drawn with native Canvas rendering.
+  * **Spreadsheet CSV Exporter**: Generates and downloads local bookings logs formatted as CSV tables.
 * **Frontend**:
   * **HTML5 & CSS3 Variables**: Themeable design using HSL custom properties. Includes responsive CSS Grid/Flexbox layouts.
   * **Light/Dark Theme Controller**: Client-side setting toggler with persistent storage across reloads.
@@ -141,18 +163,6 @@ nature-tourism-center-full-stack/
 3. **Launch the Application**:
     * Open your web browser and navigate to: `http://127.0.0.1:8080/`
     * *Tip*: Use query params `?t=123` to bypass browser caching when testing stylesheet modifications.
-
----
-
-## 🔮 Future Roadmap
-To transition this prototype into a production-grade enterprise application, the following feature additions are planned:
-- **User Authentication**: Secure login/registration panels using JWT tokens or OAuth (Google Sign-In).
-- **Payment Gateway Integration**: Sandbox integration of Stripe or Razorpay APIs for mock bookings.
-- **Google Maps Integration**: Interactive maps detailing resort boundaries, camping sites, and trekking trails.
-- **Real-Time Weather Updates**: OpenWeatherMap API integration to display live weather forecasts on the dashboard.
-- **Recommendation Engine**: Upgrading the client-side affinity rules engine to a hybrid collaborative filtering model.
-- **Cloud Deployment**: Containerizing with Docker and deploying to platforms like AWS, GCP, or Render.
-- **Admin Dashboard**: A secure analytical portal for retreat admins to monitor database entries, reviews, and bookings.
 
 ---
 

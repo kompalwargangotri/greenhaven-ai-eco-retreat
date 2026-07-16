@@ -1,0 +1,3 @@
+# GreenHaven Eco-Retreat Backend
+# This full-stack server runs entirely on Python's standard library (http.server, sqlite3, json).
+# No third-party packages are required.

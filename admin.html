@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GreenHaven Retreat | Admin Control Dashboard</title>
+  <!-- Google Fonts Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #166534;
+      --primary-light: #15803d;
+      --secondary: #14532d;
+      --accent: #d97706;
+      
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.02);
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-full: 9999px;
+      --transition-normal: 0.25s ease;
+      --font-title: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    [data-theme="dark"] {
+      --bg-main: #0b0f0d;
+      --bg-card: #121815;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #1e2924;
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color var(--transition-normal);
+    }
+    
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    }
+    
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-circle {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 50%;
+    }
+    
+    .logo-text {
+      font-family: var(--font-title);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-normal);
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-light);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+    
+    .btn-outline:hover {
+      background-color: rgba(0,0,0,0.02);
+    }
+    
+    .container {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 30px 24px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+    
+    /* Metrics panel */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    
+    .metric-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background-color: var(--primary);
+    }
+    
+    .metric-card.accent::after {
+      background-color: var(--accent);
+    }
+    
+    .metric-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    
+    .metric-value {
+      font-family: var(--font-title);
+      font-size: 1.85rem;
+      font-weight: 700;
+    }
+    
+    /* Dashboard middle section layout */
+    .dash-layout-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 25px;
+    }
+    
+    @media (max-width: 992px) {
+      .dash-layout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+    
+    .card-title {
+      font-family: var(--font-title);
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+    
+    /* Tab controllers */
+    .tab-bar {
+      display: flex;
+      border-bottom: 2px solid var(--border-color);
+      gap: 15px;
+    }
+    
+    .tab-btn {
+      padding: 10px 16px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+      cursor: pointer;
+      position: relative;
+      font-size: 0.9rem;
+      font-family: var(--font-body);
+      transition: color var(--transition-normal);
+    }
+    
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+    
+    .tab-btn.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--primary);
+    }
+    
+    .tab-panel {
+      display: none;
+    }
+    
+    .tab-panel.active {
+      display: block;
+    }
+    
+    /* Table styling */
+    .table-container {
+      overflow-x: auto;
+      max-height: 450px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    th {
+      background-color: rgba(0,0,0,0.02);
+      font-weight: 600;
+      color: var(--text-muted);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    [data-theme="dark"] th {
+      background-color: rgba(255,255,255,0.02);
+    }
+    
+    tr:hover {
+      background-color: rgba(0,0,0,0.01);
+    }
+    
+    .badge {
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+    
+    .badge-positive { background-color: #dcfce7; color: #166534; }
+    .badge-negative { background-color: #fee2e2; color: #991b1b; }
+    .badge-neutral { background-color: #f1f5f9; color: #475569; }
+    
+    /* Custom charting container */
+    .chart-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      padding: 10px;
+    }
+    
+    canvas {
+      width: 100%;
+      max-width: 400px;
+      height: 250px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+    }
+    
+    .empty-state {
+      padding: 40px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-area">
+      <div class="logo-circle"></div>
+      <span class="logo-text">GreenHaven Retreat</span>
+      <span style="font-size: 0.76rem; background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 99px; font-weight: 600; margin-left: 5px;">Admin</span>
+    </div>
+    
+    <div class="header-actions">
+      <a href="index.html" class="btn btn-outline">🏠 Main Site</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 8px;">🌓 Theme</button>
+      <button id="logout-btn" class="btn btn-primary">Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <!-- KPI Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-title">Total Bookings</span>
+        <span class="metric-value" id="kpi-bookings">--</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-title">Total Revenue (INR)</span>
+        <span class="metric-value" id="kpi-revenue">₹0.00</span>
+      </div>
+      <div class="metric-card accent">
+        <span class="metric-title">Contact Queries</span>
+        <span class="metric-value" id="kpi-contacts">--</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-title">NLP Positive Ratio</span>
+        <span class="metric-value" id="kpi-sentiment">--</span>
+      </div>
+    </div>
+    
+    <div class="dash-layout-grid">
+      
+      <!-- Primary Data Tables Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="bookings-tab">Bookings Logs</button>
+            <button class="tab-btn" data-tab="reviews-tab">Reviews Sentiment</button>
+            <button class="tab-btn" data-tab="contacts-tab">Contact Queries</button>
+          </div>
+          <button id="export-csv-btn" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">📥 Export Bookings CSV</button>
+        </div>
+        
+        <!-- Bookings Log Panel -->
+        <div class="tab-panel active" id="bookings-tab">
+          <div class="table-container">
+            <table id="bookings-table">
+              <thead>
+                <tr>
+                  <th>Ticket ID</th>
+                  <th>Visitor Name</th>
+                  <th>Email</th>
+                  <th>Visit Date</th>
+                  <th>Package Choice</th>
+                  <th>Total Cost</th>
+                </tr>
+              </thead>
+              <tbody id="bookings-table-body">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Reviews Panel -->
+        <div class="tab-panel" id="reviews-tab">
+          <div class="table-container">
+            <table id="reviews-table">
+              <thead>
+                <tr>
+                  <th>Author</th>
+                  <th>Rating</th>
+                  <th>Review Text</th>
+                  <th>Sentiment</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody id="reviews-table-body">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Contacts Panel -->
+        <div class="tab-panel" id="contacts-tab">
+          <div class="table-container">
+            <table id="contacts-table">
+              <thead>
+                <tr>
+                  <th>Sender</th>
+                  <th>Email</th>
+                  <th>Message Detail</th>
+                  <th>Received Date</th>
+                </tr>
+              </thead>
+              <tbody id="contacts-table-body">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Analytics Charts Card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Analytics Distribution</span>
+        </div>
+        <div class="chart-container">
+          <h4 style="font-size: 0.88rem; color: var(--text-muted); width: 100%; text-align: left;">Booking Packages Distribution</h4>
+          <canvas id="package-chart"></canvas>
+          
+          <h4 style="font-size: 0.88rem; color: var(--text-muted); width: 100%; text-align: left; margin-top: 15px;">Review Sentiments Polarity</h4>
+          <canvas id="sentiment-chart"></canvas>
+        </div>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  <script>
+    // 1. Security Gate Validation
+    const role = sessionStorage.getItem('role');
+    const token = sessionStorage.getItem('token');
+    
+    if (role !== 'admin' || !token) {
+      alert("Unauthorized Access. Admin credentials required.");
+      window.location.href = "index.html";
+    }
+    
+    // Theme Handler
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      // Redraw charts to update text colors
+      loadDashboardData();
+    });
+    
+    // Tab Controller
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabPanels.forEach(p => p.classList.remove('active'));
+        
+        btn.classList.add('active');
+        document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+      });
+    });
+    
+    // Logout Handler
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = "index.html";
+    });
+    
+    // Global booking data storage for CSV exporter
+    let activeBookings = [];
+    
+    // 2. Fetch and Load SQL Reports
+    function loadDashboardData() {
+      fetch('/api/admin/stats')
+        .then(res => {
+          if (!res.ok) throw new Error("API Stats fetch error.");
+          return res.json();
+        })
+        .then(data => {
+          renderDashboard(data);
+        })
+        .catch(err => {
+          console.warn("REST API statistics unavailable, loading Demo Mode fallback (localStorage)...", err);
+          loadDemoModeData();
+        });
+    }
+    
+    function renderDashboard(data) {
+      activeBookings = data.bookings;
+      
+      // Update KPIs
+      document.getElementById('kpi-bookings').textContent = data.booking_count;
+      document.getElementById('kpi-revenue').textContent = `₹${parseFloat(data.total_revenue).toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
+      document.getElementById('kpi-contacts').textContent = data.contacts.length;
+      
+      // Calculate Sentiment positive ratio
+      let positiveCount = data.sentiments.Positive || 0;
+      let totalReviews = Object.values(data.sentiments).reduce((a, b) => a + b, 0);
+      let pct = totalReviews > 0 ? Math.round((positiveCount / totalReviews) * 100) : 100;
+      document.getElementById('kpi-sentiment').textContent = `${pct}% Positive`;
+      
+      // Render Tables
+      renderBookingsTable(data.bookings);
+      renderReviewsTable(data.reviews);
+      renderContactsTable(data.contacts);
+      
+      // Draw Charts using HTML5 Canvas
+      drawPackageChart(data.packages);
+      drawSentimentChart(data.sentiments);
+    }
+    
+    function renderBookingsTable(bookings) {
+      const tbody = document.getElementById('bookings-table-body');
+      tbody.innerHTML = '';
+      
+      if (bookings.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No bookings log found.</td></tr>`;
+        return;
+      }
+      
+      bookings.forEach(b => {
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${b.ticket_id}</strong></td>
+            <td>${b.visitor_name}</td>
+            <td>${b.email}</td>
+            <td>${b.visit_date}</td>
+            <td>${b.package_name}</td>
+            <td>₹${parseFloat(b.total_price).toLocaleString('en-IN', {maximumFractionDigits:2})}</td>
+          </tr>
+        `;
+      });
+    }
+    
+    function renderReviewsTable(reviews) {
+      const tbody = document.getElementById('reviews-table-body');
+      tbody.innerHTML = '';
+      
+      if (reviews.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No reviews registered.</td></tr>`;
+        return;
+      }
+      
+      reviews.forEach(r => {
+        let badgeClass = 'badge-neutral';
+        if (r.sentiment_label === 'Positive') badgeClass = 'badge-positive';
+        else if (r.sentiment_label === 'Negative') badgeClass = 'badge-negative';
+        
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${r.name}</strong></td>
+            <td>⭐ ${r.rating}/5</td>
+            <td>"${r.text}"</td>
+            <td><span class="badge ${badgeClass}">${r.sentiment_label}</span></td>
+            <td>${Math.round(r.sentiment_score * 100)}%</td>
+          </tr>
+        `;
+      });
+    }
+    
+    function renderContactsTable(contacts) {
+      const tbody = document.getElementById('contacts-table-body');
+      tbody.innerHTML = '';
+      
+      if (contacts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No helpdesk messages received.</td></tr>`;
+        return;
+      }
+      
+      contacts.forEach(c => {
+        const dateStr = c.created_at ? new Date(c.created_at).toLocaleDateString() : 'Today';
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${c.name}</strong></td>
+            <td>${c.email}</td>
+            <td>${c.message}</td>
+            <td>${dateStr}</td>
+          </tr>
+        `;
+      });
+    }
+    
+    // Draw Custom Package Bar Chart using HTML Canvas API
+    function drawPackageChart(packages) {
+      const canvas = document.getElementById('package-chart');
+      const ctx = canvas.getContext('2d');
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Canvas properties
+      const w = canvas.width = 400;
+      const h = canvas.height = 250;
+      
+      const padding = 40;
+      const chartWidth = w - padding * 2;
+      const chartHeight = h - padding * 2;
+      
+      const labels = Object.keys(packages).length > 0 ? Object.keys(packages) : ["Nature Starter", "Adventure Pro", "Luxury Retreat"];
+      const values = Object.keys(packages).length > 0 ? Object.values(packages) : [3, 5, 2];
+      const maxVal = Math.max(...values, 5);
+      
+      // Grid labels text styling
+      ctx.fillStyle = isDark ? "#94a3b8" : "#64748b";
+      ctx.font = "10px sans-serif";
+      
+      // Draw Y-axis grid & labels
+      const gridLines = 4;
+      for (let i = 0; i <= gridLines; i++) {
+        const val = Math.round((maxVal / gridLines) * i);
+        const y = h - padding - (chartHeight / gridLines) * i;
+        ctx.fillText(val, 10, y + 3);
+        ctx.strokeStyle = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(w - padding, y);
+        ctx.stroke();
+      }
+      
+      // Draw Bars
+      const barSpacing = chartWidth / labels.length;
+      const barWidth = 30;
+      
+      labels.forEach((label, index) => {
+        const val = values[index] || 0;
+        const barH = (val / maxVal) * chartHeight;
+        const x = padding + barSpacing * index + (barSpacing - barWidth) / 2;
+        const y = h - padding - barH;
+        
+        // Draw main bar fill
+        ctx.fillStyle = "#15803d"; // Primary Forest Green theme
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth, barH, [4, 4, 0, 0]);
+        ctx.fill();
+        
+        // Value Text on top of bar
+        ctx.fillStyle = isDark ? "#f1f5f9" : "#0f172a";
+        ctx.font = "bold 11px sans-serif";
+        ctx.fillText(val, x + barWidth / 2 - 3, y - 6);
+        
+        // Label x-axis text
+        ctx.fillStyle = isDark ? "#94a3b8" : "#64748b";
+        ctx.font = "8px sans-serif";
+        // Shorten label for layout spacing
+        let shortLabel = label.substring(0, 10);
+        ctx.fillText(shortLabel, x - 5, h - padding + 15);
+      });
+    }
+    
+    // Draw Custom Pie/Donut Chart for Sentiments on Canvas
+    function drawSentimentChart(sentiments) {
+      const canvas = document.getElementById('sentiment-chart');
+      const ctx = canvas.getContext('2d');
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      
+      const w = canvas.width = 400;
+      const h = canvas.height = 250;
+      ctx.clearRect(0, 0, w, h);
+      
+      const cX = w / 2 - 40;
+      const cY = h / 2;
+      const radius = 60;
+      
+      const labels = ["Positive", "Neutral", "Negative"];
+      const dataVals = [
+        sentiments.Positive || 0,
+        sentiments.Neutral || 0,
+        sentiments.Negative || 0
+      ];
+      
+      const total = dataVals.reduce((a, b) => a + b, 0);
+      
+      // Fallback details if no data is loaded
+      const sliceVals = total > 0 ? dataVals : [3, 1, 0];
+      const sliceTotal = total > 0 ? total : 4;
+      const colors = ["#22c55e", "#64748b", "#ef4444"];
+      
+      let startAngle = 0;
+      
+      sliceVals.forEach((val, i) => {
+        if (val === 0) return;
+        const angle = (val / sliceTotal) * Math.PI * 2;
+        
+        ctx.fillStyle = colors[i];
+        ctx.beginPath();
+        ctx.moveTo(cX, cY);
+        ctx.arc(cX, cY, radius, startAngle, startAngle + angle);
+        ctx.closePath();
+        ctx.fill();
+        
+        startAngle += angle;
+      });
+      
+      // Draw inner circle for donut layout
+      ctx.fillStyle = isDark ? "#121815" : "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cX, cY, radius - 20, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw legends layout list labels
+      labels.forEach((lbl, idx) => {
+        const x = w - 120;
+        const y = 60 + idx * 30;
+        const valCount = dataVals[idx];
+        
+        // Color block
+        ctx.fillStyle = colors[idx];
+        ctx.beginPath();
+        ctx.roundRect(x, y - 10, 14, 14, 3);
+        ctx.fill();
+        
+        // Text
+        ctx.fillStyle = isDark ? "#f1f5f9" : "#0f172a";
+        ctx.font = "11px sans-serif";
+        ctx.fillText(`${lbl}: ${valCount}`, x + 24, y);
+      });
+    }
+    
+    // 3. Fallback Caching: Load LocalStorage statistics when offline
+    function loadDemoModeData() {
+      const localBookings = JSON.parse(localStorage.getItem('greenhaven_bookings') || '[]');
+      const localReviews = JSON.parse(localStorage.getItem('greenhaven_reviews') || '[]');
+      
+      // Seed default bookings for demo presentation
+      let bookings = localBookings;
+      if (bookings.length === 0) {
+        bookings = [
+          { ticket_id: "GH-2026-9041", visitor_name: "Rahul Verma", email: "rahul@gmail.com", visit_date: "2026-07-24", package_name: "Adventure Pro", total_price: 1545.00 },
+          { ticket_id: "GH-2026-3021", visitor_name: "Sneha Patil", email: "sneha@yahoo.com", visit_date: "2026-08-11", package_name: "Luxury Agro Retreat", total_price: 3200.00 }
+        ];
+      }
+      
+      // Seed default reviews for demo presentation
+      let reviews = localReviews;
+      if (reviews.length === 0) {
+        reviews = [
+          { name: "Sanjay Rao", rating: 5, text: "The trekking and the cottage package were absolutely incredible. The local food is cooked organically and reminds us of traditional home dishes. Our kids loved the boating!", sentiment_label: "Positive", sentiment_score: 0.95 },
+          { name: "Anjali K.", rating: 4, text: "Great place for nature photographers and hikers. The guides are extremely knowledgeable about native fauna. Accommodation in the tents is very clean and standard.", sentiment_label: "Positive", sentiment_score: 0.88 }
+        ];
+      }
+      
+      // Aggregate packages count
+      const packages = {};
+      bookings.forEach(b => {
+        packages[b.package_name] = (packages[b.package_name] || 0) + 1;
+      });
+      
+      // Aggregate sentiments
+      const sentiments = { Positive: 0, Neutral: 0, Negative: 0 };
+      reviews.forEach(r => {
+        sentiments[r.sentiment_label] = (sentiments[r.sentiment_label] || 0) + 1;
+      });
+      
+      const mockStats = {
+        booking_count: bookings.length,
+        total_revenue: bookings.reduce((sum, b) => sum + parseFloat(b.total_price), 0),
+        packages: packages,
+        sentiments: sentiments,
+        bookings: bookings,
+        reviews: reviews,
+        contacts: [
+          { name: "Vikram Dev", email: "vikram@gmail.com", message: "Do you offer private custom bonfire setups for groups of 10 people?", created_at: Date.now() }
+        ]
+      };
+      
+      renderDashboard(mockStats);
+    }
+    
+    // 4. CSV Exporter
+    document.getElementById('export-csv-btn').addEventListener('click', () => {
+      if (activeBookings.length === 0) {
+        alert("No bookings available to export.");
+        return;
+      }
+      
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Ticket ID,Visitor Name,Email,Visit Date,Package,Total Cost\n";
+      
+      activeBookings.forEach(b => {
+        csvContent += `"${b.ticket_id}","${b.visitor_name}","${b.email}","${b.visit_date}","${b.package_name}","${b.total_price}"\n`;
+      });
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "greenhaven_bookings_report.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+    
+    // Initial Load
+    window.addEventListener('load', loadDashboardData);
+  </script>
+</body>
+</html>

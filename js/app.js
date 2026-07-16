@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initVoiceGuide();
   initScrollReveal();
+  initAuth();
+  initWeather();
+  initPayment();
 });
 
 /* ==========================================================================
@@ -439,22 +442,41 @@ function initBookingSimulator() {
       total_price: finalBill.grandTotal
     };
     
-    // Disable submit button during dynamic api call
+    // Store variables globally for use in payment processing modal
+    window.lastCalculatedBill = finalBill;
+    window.lastSelectedPackageName = packageName;
+    window.lastSelectedAddonsList = addonsList;
+    window.pendingBookingPayload = bookingPayload;
+    
+    // Populate payment summary
+    document.getElementById('payment-package-detail').textContent = `Package: ${packageName} (${finalBill.adultsCount} Ad, ${finalBill.childrenCount} Ch)`;
+    document.getElementById('payment-total-detail').textContent = `Total Cost: ₹${finalBill.grandTotal.toLocaleString('en-IN', {maximumFractionDigits:2})}`;
+    
+    // Open payment gateway modal
+    document.getElementById('payment-modal-overlay').classList.add('active');
+  });
+
+  window.confirmBookingCheckout = function() {
+    const payload = window.pendingBookingPayload;
+    const finalBill = window.lastCalculatedBill;
+    const packageName = window.lastSelectedPackageName;
+    const addonsList = window.lastSelectedAddonsList;
+    const name = payload.name;
+    const email = payload.email;
+    
     submitBtn.disabled = true;
     submitBtn.textContent = 'Processing Booking...';
     
-    // Send payload to Node.js backend SQLite DB
     fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bookingPayload)
+      body: JSON.stringify(payload)
     })
     .then(res => {
       if (!res.ok) throw new Error("Server error during booking save.");
       return res.json();
     })
     .then(data => {
-      // Re-enable and reset form
       submitBtn.disabled = false;
       submitBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -464,7 +486,14 @@ function initBookingSimulator() {
       addonItems.forEach(item => item.classList.remove('selected'));
       calculateTotal();
       
-      // Build dynamic receipt modal with SQL generated IDs
+      // Auto-prefill name/email if user is logged in
+      const activeUser = sessionStorage.getItem('username');
+      const activeEmail = sessionStorage.getItem('email');
+      if (activeUser) {
+        document.getElementById('booking-name').value = sessionStorage.getItem('displayName') || activeUser;
+        document.getElementById('booking-email').value = activeEmail || `${activeUser}@gmail.com`;
+      }
+      
       let receiptHtml = `
         <div class="receipt-header">
           <div class="receipt-logo">GREENHAVEN ECO-RETREAT</div>
@@ -532,7 +561,7 @@ function initBookingSimulator() {
       
       receiptContainer.innerHTML = receiptHtml;
       
-      // Toggle modal overlay
+      document.getElementById('payment-modal-overlay').classList.remove('active');
       modalOverlay.classList.add('active');
       document.body.style.overflow = 'hidden';
       showToast('Booking success! Gate pass generated.', 'success');
@@ -540,7 +569,6 @@ function initBookingSimulator() {
     .catch(err => {
       console.warn("Backend unavailable, generating ticket in Demo Mode (LocalStorage):", err);
       
-      // Fallback: Generate mock booking ticket
       const currentYear = new Date().getFullYear();
       const randomNum = Math.floor(1000 + Math.random() * 9000);
       const ticketId = `GH-${currentYear}-${randomNum}`;
@@ -550,7 +578,7 @@ function initBookingSimulator() {
         ticket_id: ticketId,
         visitor_name: name,
         email: email,
-        visit_date: dateInput.value,
+        visit_date: payload.date,
         package_name: packageName,
         adults: finalBill.adultsCount,
         children: finalBill.childrenCount,
@@ -558,12 +586,10 @@ function initBookingSimulator() {
         total_price: finalBill.grandTotal
       };
       
-      // Save mock booking to LocalStorage
       const localBookings = JSON.parse(localStorage.getItem('greenhaven_bookings') || '[]');
       localBookings.push(mockData);
       localStorage.setItem('greenhaven_bookings', JSON.stringify(localBookings));
       
-      // Re-enable and reset form
       submitBtn.disabled = false;
       submitBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -573,7 +599,14 @@ function initBookingSimulator() {
       addonItems.forEach(item => item.classList.remove('selected'));
       calculateTotal();
       
-      // Build dynamic receipt html
+      // Auto-prefill name/email if user is logged in
+      const activeUser = sessionStorage.getItem('username');
+      const activeEmail = sessionStorage.getItem('email');
+      if (activeUser) {
+        document.getElementById('booking-name').value = sessionStorage.getItem('displayName') || activeUser;
+        document.getElementById('booking-email').value = activeEmail || `${activeUser}@gmail.com`;
+      }
+      
       let receiptHtml = `
         <div class="receipt-header">
           <div class="receipt-logo">GREENHAVEN ECO-RETREAT</div>
@@ -641,7 +674,7 @@ function initBookingSimulator() {
       
       receiptContainer.innerHTML = receiptHtml;
       
-      // Toggle modal overlay
+      document.getElementById('payment-modal-overlay').classList.remove('active');
       modalOverlay.classList.add('active');
       document.body.style.overflow = 'hidden';
       showToast('Booking success! Gate pass generated (Demo Mode).', 'success');
@@ -1524,22 +1557,386 @@ function initVoiceGuide() {
 function initScrollReveal() {
   const revealElements = document.querySelectorAll('.reveal');
   
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('active');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {
-      threshold: 0.05,
-      rootMargin: '0px 0px -40px 0px'
-    });
-    
     revealElements.forEach(el => observer.observe(el));
   } else {
     revealElements.forEach(el => el.classList.add('active'));
+  }
+}
+
+/* ==========================================================================
+   13. User Authentication Module
+   ========================================================================== */
+function initAuth() {
+  const authBtn = document.getElementById('auth-btn');
+  const authModal = document.getElementById('auth-modal-overlay');
+  const authClose = document.getElementById('auth-modal-close');
+  const loginView = document.getElementById('login-view');
+  const registerView = document.getElementById('register-view');
+  const switchToRegister = document.getElementById('switch-to-register');
+  const switchToLogin = document.getElementById('switch-to-login');
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const authContainer = document.getElementById('auth-status-container');
+  
+  function updateAuthUI() {
+    const token = sessionStorage.getItem('token');
+    const username = sessionStorage.getItem('username');
+    const role = sessionStorage.getItem('role');
+    
+    if (token && username) {
+      let adminButtonHtml = '';
+      if (role === 'admin') {
+        adminButtonHtml = `<a href="admin.html" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem; border-radius: var(--radius-full); margin-right: 8px; border-color: var(--primary); color: var(--primary);">📊 Admin Panel</a>`;
+      }
+      
+      authContainer.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          ${adminButtonHtml}
+          <span style="font-size: 0.86rem; font-weight: 600; color: var(--text-main);">👋 ${username}</span>
+          <button id="logout-btn" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem; border-radius: var(--radius-full);">Logout</button>
+        </div>
+      `;
+      
+      const bookingNameInput = document.getElementById('booking-name');
+      const bookingEmailInput = document.getElementById('booking-email');
+      if (bookingNameInput && bookingEmailInput) {
+        bookingNameInput.value = username;
+        bookingEmailInput.value = `${username}@gmail.com`;
+      }
+      
+      document.getElementById('logout-btn').addEventListener('click', handleLogout);
+    } else {
+      authContainer.innerHTML = `
+        <button id="auth-btn-inner" class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem; border-radius: var(--radius-full);">Sign In</button>
+      `;
+      document.getElementById('auth-btn-inner').addEventListener('click', openModal);
+    }
+  }
+  
+  function openModal() {
+    authModal.classList.add('active');
+    loginView.style.display = 'block';
+    registerView.style.display = 'none';
+    document.getElementById('auth-modal-title').textContent = 'Sign In';
+  }
+  
+  function closeModal() {
+    authModal.classList.remove('active');
+  }
+  
+  function handleLogout() {
+    sessionStorage.clear();
+    showToast('Logged out successfully.', 'info');
+    
+    const bookingNameInput = document.getElementById('booking-name');
+    const bookingEmailInput = document.getElementById('booking-email');
+    if (bookingNameInput && bookingEmailInput) {
+      bookingNameInput.value = '';
+      bookingEmailInput.value = '';
+    }
+    
+    updateAuthUI();
+  }
+  
+  if (authBtn) authBtn.addEventListener('click', openModal);
+  if (authClose) authClose.addEventListener('click', closeModal);
+  
+  if (switchToRegister) {
+    switchToRegister.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginView.style.display = 'none';
+      registerView.style.display = 'block';
+      document.getElementById('auth-modal-title').textContent = 'Create Account';
+    });
+  }
+  
+  if (switchToLogin) {
+    switchToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginView.style.display = 'block';
+      registerView.style.display = 'none';
+      document.getElementById('auth-modal-title').textContent = 'Sign In';
+    });
+  }
+  
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      
+      fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Invalid credentials");
+        return res.json();
+      })
+      .then(data => {
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('username', data.username);
+        sessionStorage.setItem('role', data.role);
+        sessionStorage.setItem('email', `${data.username}@gmail.com`);
+        
+        showToast(`Welcome back, ${data.username}!`, 'success');
+        closeModal();
+        updateAuthUI();
+      })
+      .catch(err => {
+        console.warn("API Login failed, running local guest mode check:", err);
+        if ((username === 'admin' && password === 'admin123') || (username === 'guest' && password === 'guest123')) {
+          sessionStorage.setItem('token', 'mock-token-demo');
+          sessionStorage.setItem('username', username);
+          sessionStorage.setItem('role', username === 'admin' ? 'admin' : 'user');
+          sessionStorage.setItem('email', `${username}@gmail.com`);
+          
+          showToast(`Welcome back, ${username}! (Demo Mode)`, 'success');
+          closeModal();
+          updateAuthUI();
+        } else {
+          showToast('Invalid username or password.', 'error');
+        }
+      });
+    });
+  }
+  
+  if (registerForm) {
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('register-username').value.trim();
+      const password = document.getElementById('register-password').value.trim();
+      
+      if (username.length < 4 || password.length < 6) {
+        showToast('Username must be min 4 chars and password min 6 chars.', 'error');
+        return;
+      }
+      
+      fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => {
+        if (res.status === 409) throw new Error("Username already exists.");
+        if (!res.ok) throw new Error("Registration error.");
+        return res.json();
+      })
+      .then(() => {
+        showToast('Registration complete! Please sign in.', 'success');
+        loginView.style.display = 'block';
+        registerView.style.display = 'none';
+        document.getElementById('auth-modal-title').textContent = 'Sign In';
+      })
+      .catch(err => {
+        console.warn("API Register failed, running offline local registry:", err);
+        showToast(err.message || 'Error occurred during registration.', 'error');
+      });
+    });
+  }
+  
+  updateAuthUI();
+}
+
+/* ==========================================================================
+   14. Real-time Weather Updates Module
+   ========================================================================== */
+function initWeather() {
+  const tempEl = document.getElementById('weather-temp');
+  const descEl = document.getElementById('weather-desc');
+  const alertEl = document.getElementById('weather-alert');
+  
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=12.4244&longitude=75.7389&current_weather=true')
+    .then(res => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then(data => {
+      const weather = data.current_weather;
+      if (weather) {
+        tempEl.textContent = `${Math.round(weather.temperature)}°C`;
+        
+        const code = weather.weathercode;
+        let desc = "Clear Skies";
+        let isRainAlert = false;
+        
+        if (code === 0) desc = "Sunny";
+        else if (code >= 1 && code <= 3) desc = "Partly Cloudy ⛅";
+        else if (code === 45 || code === 48) desc = "Foggy 🌫️";
+        else if (code >= 51 && code <= 55) desc = "Light Drizzle 🌧️";
+        else if (code >= 61 && code <= 65) {
+          desc = "Rainy 🌧️";
+          isRainAlert = (code >= 63);
+        }
+        else if (code >= 71 && code <= 75) desc = "Snowy ❄️";
+        else if (code >= 80 && code <= 82) {
+          desc = "Showers ⛈️";
+          isRainAlert = true;
+        }
+        else if (code >= 95 && code <= 99) {
+          desc = "Thunderstorm 🌩️";
+          isRainAlert = true;
+        }
+        
+        descEl.textContent = desc;
+        if (isRainAlert && alertEl) {
+          alertEl.style.display = 'inline-block';
+        }
+      }
+    })
+    .catch(() => {
+      const currentMonth = new Date().getMonth();
+      let temp = 22;
+      let desc = "Clear Spring Skies ☀️";
+      let isRainAlert = false;
+      
+      if (currentMonth >= 5 && currentMonth <= 8) {
+        temp = 20;
+        desc = "Heavy Monsoon Rain ⛈️";
+        isRainAlert = true;
+      } else if (currentMonth === 11 || currentMonth === 0) {
+        temp = 16;
+        desc = "Pleasant Winter Breeze 🍃";
+      }
+      
+      if (tempEl) tempEl.textContent = `${temp}°C`;
+      if (descEl) descEl.textContent = desc;
+      if (isRainAlert && alertEl) alertEl.style.display = 'inline-block';
+    });
+}
+
+/* ==========================================================================
+   15. Secure Payment Gateway Simulation Module
+   ========================================================================== */
+function initPayment() {
+  const payModal = document.getElementById('payment-modal-overlay');
+  const payClose = document.getElementById('payment-modal-close');
+  const payForm = document.getElementById('payment-card-form');
+  
+  const cardInput = document.getElementById('card-number');
+  const expiryInput = document.getElementById('card-expiry');
+  const cvvInput = document.getElementById('card-cvv');
+  const holderInput = document.getElementById('card-holder');
+  
+  const statusWrapper = document.getElementById('payment-status-wrapper');
+  const statusText = document.getElementById('payment-status-text');
+  const submitBtn = document.getElementById('btn-submit-payment');
+  
+  if (payClose) {
+    payClose.addEventListener('click', () => {
+      payModal.classList.remove('active');
+    });
+  }
+  
+  if (cardInput) {
+    cardInput.addEventListener('input', () => {
+      let value = cardInput.value.replace(/\D/g, '');
+      let formatted = '';
+      for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 4 === 0) formatted += ' ';
+        formatted += value[i];
+      }
+      cardInput.value = formatted;
+      
+      const cardTypeIcon = document.getElementById('card-type-icon');
+      if (value.startsWith('4')) {
+        cardTypeIcon.textContent = '💳 Visa';
+      } else if (value.startsWith('5')) {
+        cardTypeIcon.textContent = '💳 MC';
+      } else if (value.startsWith('6')) {
+        cardTypeIcon.textContent = '💳 RuPay';
+      } else {
+        cardTypeIcon.textContent = '💳';
+      }
+    });
+  }
+  
+  if (expiryInput) {
+    expiryInput.addEventListener('input', () => {
+      let value = expiryInput.value.replace(/\D/g, '');
+      if (value.length > 2) {
+        expiryInput.value = `${value.substring(0, 2)}/${value.substring(2, 4)}`;
+      } else {
+        expiryInput.value = value;
+      }
+    });
+  }
+  
+  function validateLuhn(number) {
+    let clean = number.replace(/\D/g, '');
+    if (clean.length < 13 || clean.length > 19) return false;
+    
+    let sum = 0;
+    let shouldDouble = false;
+    for (let i = clean.length - 1; i >= 0; i--) {
+      let digit = parseInt(clean.charAt(i));
+      if (shouldDouble) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+    return (sum % 10 === 0);
+  }
+  
+  if (payForm) {
+    payForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const cardNo = cardInput.value.trim();
+      const expiry = expiryInput.value.trim();
+      const cvv = cvvInput.value.trim();
+      const holder = holderInput.value.trim();
+      
+      if (!cardNo || !expiry || !cvv || !holder) {
+        showToast('Please enter all credit card checkout details.', 'info');
+        return;
+      }
+      
+      if (!validateLuhn(cardNo)) {
+        showToast('Credit card verification failed (Luhn check invalid).', 'error');
+        cardInput.focus();
+        return;
+      }
+      
+      const expParts = expiry.split('/');
+      if (expParts.length !== 2 || expParts[0] < 1 || expParts[0] > 12) {
+        showToast('Invalid card expiry date formatting.', 'error');
+        expiryInput.focus();
+        return;
+      }
+      
+      if (cvv.length !== 3) {
+        showToast('CVV must contain exactly 3 digits.', 'error');
+        cvvInput.focus();
+        return;
+      }
+      
+      statusWrapper.style.display = 'flex';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing transaction...';
+      statusText.textContent = "Connecting to payment gateway secure merchant portal...";
+      
+      setTimeout(() => {
+        statusText.textContent = "Verifying 3D-Secure secure token authorization...";
+      }, 1000);
+      
+      setTimeout(() => {
+        statusWrapper.style.display = 'none';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Authorize Secure Payment';
+        
+        payForm.reset();
+        
+        if (window.confirmBookingCheckout) {
+          window.confirmBookingCheckout();
+        } else {
+          showToast('Booking simulator handler error.', 'error');
+        }
+      }, 2300);
+    });
   }
 }
 
