@@ -7,39 +7,51 @@ An interactive, responsive, single-page full-stack web application designed for 
 ## 📸 Screenshots
 
 ### 1. Modern GreenHaven Eco-Retreat Homepage
+
 ![GreenHaven Eco-Retreat Homepage](screenshots/homepage.png)
 
 ### 2. Interactive AI Concierge Chatbot & Soundwaves Visualizer
+
 ![AI Concierge Chatbot Aranya](screenshots/ai_chatbot.png)
 
 ### 3. Dynamic pricing regression engine (Monsoon Discount applied)
+
 ![AI Dynamic Pricing Engine](screenshots/dynamic_pricing.png)
 
 ### 4. Real-time review Natural Language Processing sentiment scoring
+
 ![Real-time NLP Sentiment Analyzer](screenshots/nlp_sentiment.png)
 
 ### 5. Premium Dark Theme Mode Layout (Emerald Theme)
+
 ![Premium Dark Theme Mode](screenshots/dark_theme.png)
 
 ### 6. Interactive Ticket Receipt Modal (with scannable entry barcode)
+
 ![Interactive Ticket Receipt Pass](screenshots/booking_receipt.png)
 
 ### 7. Filterable packages dashboard (Adventure package selection active)
+
 ![Filterable packages dashboard](screenshots/package_filter.png)
 
 ### 8. Live Weather Widget (Open-Meteo Integration)
+
 ![Weather Status Widget](screenshots/weather_widget.png)
 
 ### 9. User Authentication & Booking Form Auto-Prefill
+
 ![Guest Session Auto-Prefill](screenshots/form_prefilled.png)
 
 ### 10. Simulated Credit Card Payment Gateway (Luhn validation active)
+
 ![Payment Checkout Interface](screenshots/payment_modal.png)
 
 ### 11. Interactive Secure Pass Ticket Pass (Gate Access Ticket)
+
 ![Gate Access Ticket](screenshots/success_receipt.png)
 
 ### 12. Full-Stack Administration Dashboard (`admin.html`)
+
 ![Administrative Analytics Dashboard](screenshots/admin_dashboard.png)
 
 ---
@@ -192,3 +204,12 @@ nature-tourism-center-full-stack/
 * **Developer**: Gangotri Kompalwar
 * **Credentials**: Final Year B.Tech Student
 * **Focus Area**: Artificial Intelligence & Machine Learning (AI/ML)
+
+---
+
+## Author
+
+**Gangotri Kompalwar**
+
+- GitHub: <https://github.com/kompalwargangotri>
+- LinkedIn: <https://www.linkedin.com/in/gangotri-kompalwar-4635b9359>
