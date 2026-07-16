@@ -144,6 +144,18 @@ nature-tourism-center-full-stack/
 
 ---
 
+## 🔮 Future Roadmap
+To transition this prototype into a production-grade enterprise application, the following feature additions are planned:
+- **User Authentication**: Secure login/registration panels using JWT tokens or OAuth (Google Sign-In).
+- **Payment Gateway Integration**: Sandbox integration of Stripe or Razorpay APIs for mock bookings.
+- **Google Maps Integration**: Interactive maps detailing resort boundaries, camping sites, and trekking trails.
+- **Real-Time Weather Updates**: OpenWeatherMap API integration to display live weather forecasts on the dashboard.
+- **Recommendation Engine**: Upgrading the client-side affinity rules engine to a hybrid collaborative filtering model.
+- **Cloud Deployment**: Containerizing with Docker and deploying to platforms like AWS, GCP, or Render.
+- **Admin Dashboard**: A secure analytical portal for retreat admins to monitor database entries, reviews, and bookings.
+
+---
+
 ## 👤 Developer Profile
 
 * **Developer**: Gangotri Kompalwar
