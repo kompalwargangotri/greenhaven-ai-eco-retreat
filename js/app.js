@@ -1670,6 +1670,36 @@ function initAuth() {
       `;
       document.getElementById('auth-btn-inner').addEventListener('click', openModal);
     }
+
+    // Update mobile menu login option dynamically
+    const mobileAuthLink = document.getElementById('mobile-auth-btn');
+    if (mobileAuthLink) {
+      if (token && username) {
+        mobileAuthLink.textContent = `Logout (${username})`;
+        mobileAuthLink.onclick = (e) => {
+          e.preventDefault();
+          const hamburger = document.getElementById('hamburger-btn');
+          const navLinks = document.getElementById('nav-links');
+          if (hamburger && navLinks) {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+          }
+          handleLogout();
+        };
+      } else {
+        mobileAuthLink.textContent = "Sign In";
+        mobileAuthLink.onclick = (e) => {
+          e.preventDefault();
+          const hamburger = document.getElementById('hamburger-btn');
+          const navLinks = document.getElementById('nav-links');
+          if (hamburger && navLinks) {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+          }
+          openModal();
+        };
+      }
+    }
   }
   
   function openModal() {
