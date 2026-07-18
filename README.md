@@ -132,7 +132,8 @@ python train_model.py
 
 ## Author
 
-**Your Name**
+**Gangotri Kompalwar**
 
-* GitHub: [yourusername](https://github.com/yourusername)
-* Email: [your.email@example.com](mailto:your.email@example.com)
+* GitHub: [kompalwargangotri](https://github.com/kompalwargangotri)
+* LinkedIn: [gangotri-kompalwar-4635b9359](https://www.linkedin.com/in/gangotri-kompalwar-4635b9359)
+* Email: [kompalwargangotri@gmail.com](mailto:kompalwargangotri@gmail.com)
