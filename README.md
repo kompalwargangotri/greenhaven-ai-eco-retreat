@@ -180,6 +180,10 @@ python train_model.py
 
 **Gangotri Kompalwar**
 
-* GitHub: [kompalwargangotri](https://github.com/kompalwargangotri)
-* LinkedIn: [gangotri-kompalwar-4635b9359](https://www.linkedin.com/in/gangotri-kompalwar-4635b9359)
-* Email: [kompalwargangotri@gmail.com](mailto:kompalwargangotri@gmail.com)
+- [GitHub](https://github.com/kompalwargangotri)
+  
+- [LinkedIn](https://www.linkedin.com/in/gangotri-kompalwar-4635b9359)
+
+- [Portfolio](https://kompalwargangotri.github.io/)
+  
+- [Email](mailto:kompalwargangotri@gmail.com)
