@@ -201,10 +201,10 @@ python train_model.py
 
 **Gangotri Kompalwar**
 
-* [GitHub](https://github.com/kompalwargangotri)
+- [GitHub](https://github.com/kompalwargangotri)
   
-* [LinkedIn](https://www.linkedin.com/in/gangotri-kompalwar-4635b9359)
+- [LinkedIn](https://www.linkedin.com/in/gangotri-kompalwar-4635b9359)
 
-* [Portfolio](https://kompalwargangotri.github.io/)
+- [Portfolio](https://kompalwargangotri.github.io/)
   
-* [Email](mailto:kompalwargangotri@gmail.com)
+- [Email](mailto:kompalwargangotri@gmail.com)
