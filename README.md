@@ -6,7 +6,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-kompalwargangotri-181717?style=for-the-badge&logo=github)](https://github.com/kompalwargangotri/greenhaven-ai-eco-retreat)
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 
-> 🚀 **[Click here to view the live site →](https://greenhaven-ai-eco-retreat.onrender.com)**
+> 🚀 **[Click here to view the live site ](https://greenhaven-ai-eco-retreat.onrender.com)**
 
 ---
 
