@@ -60,6 +60,10 @@
 
 ![Administrative Analytics Dashboard](screenshots/admin_dashboard.png)
 
+### 13. Admin Records Management & Data Export Panel
+
+![Admin Updated Records Panel](screenshots/admin_updated_records.png)
+
 ---
 
 ## Key Features
@@ -206,11 +210,11 @@ python train_model.py
 ## Author
 
 **Gangotri Kompalwar**
+*(B.Tech Student — AI/ML | Full-Stack Development)*
 
-- [GitHub](https://github.com/kompalwargangotri)
-  
-- [LinkedIn](https://www.linkedin.com/in/gangotri-kompalwar-4635b9359)
-
-- [Portfolio](https://kompalwargangotri.github.io/)
-  
-- [Email](mailto:kompalwargangotri@gmail.com)
+| | Link |
+|---|---|
+| 🐙 GitHub | [github.com/kompalwargangotri](https://github.com/kompalwargangotri) |
+| 💼 LinkedIn | [linkedin.com/in/gangotri-kompalwar-4635b9359](https://www.linkedin.com/in/gangotri-kompalwar-4635b9359) |
+| 🌐 Portfolio | [kompalwargangotri.github.io](https://kompalwargangotri.github.io/) |
+| 📧 Email | [kompalwargangotri@gmail.com](mailto:kompalwargangotri@gmail.com) |
