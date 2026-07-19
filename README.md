@@ -2,6 +2,13 @@
 
 **GreenHaven AI Eco-Retreat** is an AI-integrated full-stack tourism platform featuring a trained Naive Bayes sentiment classifier, an explainable weighted package advisor, transparent dynamic-pricing rules, weather integration, booking management and administrative analytics.
 
+[![Live Site](https://img.shields.io/badge/🌐%20Live%20Site-greenhaven--ai--eco--retreat.onrender.com-22c55e?style=for-the-badge)](https://greenhaven-ai-eco-retreat.onrender.com)
+[![GitHub](https://img.shields.io/badge/GitHub-kompalwargangotri-181717?style=for-the-badge&logo=github)](https://github.com/kompalwargangotri/greenhaven-ai-eco-retreat)
+[![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+
+> 🚀 **[Click here to view the live site →](https://greenhaven-ai-eco-retreat.onrender.com)**
+> *(Free tier — may take up to 50 seconds to wake up on first visit)*
+
 ---
 
 ## 📸 Screenshots
